@@ -1,7 +1,7 @@
 ---
 title: "STA3043S Bayesian Analysis"
 subtitle: "Assignment One Memorandum: Hierarchical Bayesian Modelling"
-author: "Ryan Daye (DYXRYA001)"
+author: "Ryan Daye (DYXRYA001), Alex Meyer(MYRALE008)"
 date: "6 September 2026"
 output:
   pdf_document:
@@ -351,3 +351,500 @@ the proportionality constant. Hence,
 \exp\{-c|\mu|\}.
 }
 \]
+
+# Question 3
+
+### (a)
+
+From the result of Question 2, the posterior density of \(\mu\) is proportional to
+
+\[
+\pi(\mu\mid\mathbf y)
+\propto
+\exp\left\{
+-\frac{(\mu-m)^2}{2v}
+\right\}
+\exp\{-c|\mu|\}.
+\]
+
+The first term is proportional to the density of a Normal distribution
+with mean \(m\) and variance \(v\). Therefore, a natural candidate
+distribution for Acceptance Rejection sampling is
+
+\[
+h(\mu)=N(m,v).
+\]
+
+The density of this is:
+
+\[
+h(\mu)
+=
+\frac{1}{\sqrt{2\pi v}}
+\exp\left\{
+-\frac{(\mu-m)^2}{2v}
+\right\}.
+\]
+
+This is an appropriate candidate because it matches the Gaussian component
+of the target posterior exactly. Due to the absoult value of \(\mu\),
+The remaining factor satisfies:
+
+\[
+0 < \exp\{-c|\mu|\} \leq 1
+\]
+
+for all \(\mu\). Hence the target density is bounded by a constant multiple
+of \(h(\mu)\), as required for Acceptance Rejection sampling. Furthermore,
+the candidate has heavier tails than the target because the target contains
+the additional factor \(\exp\{-c|\mu|\}\)
+
+### (b)
+
+From part (a), choose the candidate density
+
+\[
+h(\mu)
+=
+\frac{1}{\sqrt{2\pi v}}
+\exp\left\{
+-\frac{(\mu-m)^2}{2v}
+\right\},
+\]
+
+so that
+
+\[
+\mu^\ast \sim N(m,v).
+\]
+
+The unnormalised target posterior density is
+
+\[
+\pi^\ast(\mu\mid\mathbf y)
+=
+\exp\left\{
+-\frac{(\mu-m)^2}{2v}
+\right\}
+\exp\{-c|\mu|\}.
+\]
+
+For Acceptance Rejection sampling, we require a constant \(C\) such that
+
+\[
+\pi^\ast(\mu\mid\mathbf y)
+\leq C h(\mu)
+\]
+
+for all \(\mu\). The smallest suitable value of \(C\) is
+
+\[
+C
+=
+\max_{\mu}
+\frac{\pi^\ast(\mu\mid\mathbf y)}{h(\mu)}.
+\]
+
+Now,
+
+\[
+\begin{aligned}
+\frac{\pi^\ast(\mu\mid\mathbf y)}{h(\mu)}
+&=
+\frac{
+\exp\left\{
+-\frac{(\mu-m)^2}{2v}
+\right\}
+\exp\{-c|\mu|\}
+}{
+\frac{1}{\sqrt{2\pi v}}
+\exp\left\{
+-\frac{(\mu-m)^2}{2v}
+\right\}
+}\\
+&=
+\sqrt{2\pi v}\exp\{-c|\mu|\}.
+\end{aligned}
+\]
+
+Since
+
+\[
+\exp\{-c|\mu|\}
+\]
+
+is maximised when
+
+\[
+|\mu|=0,
+\]
+
+that is, when \(\mu=0\), its maximum value is
+
+\[
+\exp(0)=1.
+\]
+
+Therefore,
+
+\[
+C=\sqrt{2\pi v}.
+\]
+
+The probability of accepting a candidate value \(\mu\) is
+
+\[
+\gamma(\mu)
+=
+\frac{
+\pi^\ast(\mu\mid\mathbf y)
+}{
+C h(\mu)
+}.
+\]
+
+Substituting the expressions for \(\pi^\ast(\mu\mid\mathbf y)\),
+\(C\), and \(h(\mu)\),
+
+\[
+\begin{aligned}
+\gamma(\mu)
+&=
+\frac{
+\exp\left\{
+-\frac{(\mu-m)^2}{2v}
+\right\}
+\exp\{-c|\mu|\}
+}{
+\sqrt{2\pi v}
+\left[
+\frac{1}{\sqrt{2\pi v}}
+\exp\left\{
+-\frac{(\mu-m)^2}{2v}
+\right\}
+\right]
+}\\
+&=
+\exp\{-c|\mu|\}.
+\end{aligned}
+\]
+
+Since \(c=0.25\),
+
+\[
+\gamma(\mu)
+=
+\exp\{-0.25|\mu|\}.
+\]
+
+### (c)
+
+Using the candidate distribution from part (a),
+
+\[
+\mu^\ast \sim N(m,v),
+\]
+
+and the acceptance probability derived in part (b),
+
+\[
+\gamma(\mu^\ast)
+=
+\exp\{-c|\mu^\ast|\},
+\]
+
+```{r accept reject, echo=FALSE}
+ar <- function(n = 10000, m, v, c = 0.25) {
+  samples <- numeric(n)
+  accepted <- 0
+  proposed <- 0
+  
+  while (accepted < n) {
+    mu_candidate <- rnorm(
+      1,
+      mean = m,
+      sd = sqrt(v)
+    )
+    
+    proposed <- proposed + 1
+    gamma <- exp(-c * abs(mu_candidate))
+    u <- runif(1)
+    if (u <= gamma) {
+      accepted <- accepted + 1
+      samples[accepted] <- mu_candidate
+    }
+  }
+  acceptance_rate <- accepted / proposed
+  
+  return(
+    list(
+      samples = samples,
+      acceptance_rate = acceptance_rate
+    )
+  )
+}
+```
+
+```{r, echo=FALSE}
+sigma2 <- 4
+tau2 <- 2.25
+c <- 0.25
+
+V_j <- tau2 + sigma2 / n_j
+
+m <- sum(ybar_j / V_j) / sum(1 / V_j)
+
+v <- 1 / sum(1 / V_j)
+
+set.seed(69)
+
+ar_results <- ar(
+  n = 5000,
+  m = m,
+  v = v,
+  c = c
+)
+
+mu_draws <- ar_results$samples
+acceptance_table <- data.frame(
+  `Quantity` = "Empirical acceptance rate",
+  `Estimate` = round(ar_results$acceptance_rate, 4),
+  check.names = FALSE
+)
+
+acceptance_table |>
+  kable(
+    format = "latex",
+    booktabs = TRUE,
+    align = c("l", "c"),
+    caption = "Acceptance--Rejection sampling performance."
+  ) |>
+  kable_styling(
+    latex_options = c("striped", "hold_position"),
+    full_width = FALSE,
+    position = "center"
+  ) |>
+  row_spec(0, bold = TRUE)
+```
+
+### (d)
+
+#### (i)
+
+Using the Acceptance Rejection samples
+\(\mu^{(1)},\ldots,\mu^{(N)}\) from the posterior distribution, the
+posterior mean is estimated by
+
+\[
+\widehat{E[\mu\mid\mathbf y]}
+=
+\frac{1}{N}
+\sum_{s=1}^{N}\mu^{(s)},
+\]
+
+and the posterior variance is estimated by
+
+\[
+\widehat{\operatorname{Var}(\mu\mid\mathbf y)}
+=
+\frac{1}{N-1}
+\sum_{s=1}^{N}
+\left(
+\mu^{(s)}-\bar{\mu}
+\right)^2.
+\]
+
+```{r Mean and variance, echo=FALSE}
+posterior_mean <- mean(mu_draws)
+posterior_variance <- var(mu_draws)
+
+posterior_summary <- data.frame(
+  `Posterior Quantity` = c(
+    "Posterior mean",
+    "Posterior variance"
+  ),
+  `Estimate` = c(
+    round(posterior_mean, 3),
+    round(posterior_variance, 3)
+  ),
+  `Units` = c(
+    "ml",
+    "ml²"
+  ),
+  check.names = FALSE
+)
+
+posterior_summary |>
+  kable(
+    format = "latex",
+    booktabs = TRUE,
+    align = c("l", "c", "c"),
+    caption = "Estimated posterior mean and variance of the population mean deviation."
+  ) |>
+  kable_styling(
+    latex_options = c("striped", "hold_position"),
+    full_width = FALSE,
+    position = "center"
+  ) |>
+  row_spec(0, bold = TRUE)
+```
+
+
+#### (ii)
+
+A \(95\%\) posterior credible interval for \(\mu\) can be estimated using
+the \(2.5\%\) and \(97.5\%\) quantiles of the simulated posterior draws.
+
+```{r Credibility interval, echo=FALSE}
+credible_interval <- quantile(
+  mu_draws,
+  probs = c(0.025, 0.975)
+)
+
+credible_table <- data.frame(
+  `Interval` = "95\\% posterior credible interval",
+  `Lower Bound` = unname(round(credible_interval[1], 3)),
+  `Upper Bound` = unname(round(credible_interval[2], 3)),
+  `Units` = "ml",
+  check.names = FALSE
+)
+
+credible_table |>
+  kable(
+    format = "latex",
+    booktabs = TRUE,
+    row.names = FALSE,
+    align = c("l", "c", "c", "c"),
+    caption = "Estimated 95\\% posterior credible interval for $\\mu$.",
+    escape = FALSE
+  ) |>
+  kable_styling(
+    latex_options = c("striped", "hold_position"),
+    full_width = FALSE,
+    position = "center"
+  ) |>
+  row_spec(0, bold = TRUE)
+```
+
+
+
+#### (iii)
+
+The posterior probability that the population of machines overfills on
+average is estimated by the proportion of posterior draws for which
+\(\mu>0\):
+
+\[
+P(\mu>0\mid\mathbf y)
+\approx
+\frac{1}{N}
+\sum_{s=1}^{N}
+I\left(\mu^{(s)}>0\right).
+\]
+
+Similarly,
+
+\[
+P(|\mu|<0.5\mid\mathbf y)
+\]
+
+is estimated by the proportion of posterior draws lying between
+\(-0.5\) ml and \(0.5\) ml.
+
+```{r positive near zero, echo=FALSE}
+prob_positive <- mean(mu_draws > 0)
+
+prob_near_zero <- mean(abs(mu_draws) < 0.5)
+
+probability_table <- data.frame(
+  `Posterior Probability` = c(
+    "$P(\\mu > 0 \\mid \\mathbf{y})$",
+    "$P(|\\mu| < 0.5 \\mid \\mathbf{y})$"
+  ),
+  `Estimate` = c(
+    round(prob_positive, 4),
+    round(prob_near_zero, 4)
+  ),
+  `Percentage` = c(
+    paste0(round(100 * prob_positive, 1), "\\%"),
+    paste0(round(100 * prob_near_zero, 1), "\\%")
+  ),
+  check.names = FALSE
+)
+
+probability_table |>
+  kable(
+    format = "latex",
+    booktabs = TRUE,
+    row.names = FALSE,
+    align = c("l", "c", "c"),
+    caption = "Estimated posterior probabilities.",
+    escape = FALSE
+  ) |>
+  kable_styling(
+    latex_options = c("striped", "hold_position"),
+    full_width = FALSE,
+    position = "center"
+  ) |>
+  row_spec(0, bold = TRUE)
+```
+
+
+
+#### (iv)
+
+The posterior distribution of \(\mu\) can be visualised using a kernel
+density estimate of the Acceptance--Rejection samples.
+
+```{r posterior-density, echo=FALSE, fig.cap="Estimated posterior density of the population mean deviation, $\\mu$.", fig.pos="H", fig.align="center", fig.width=7, fig.height=4.2}
+posterior_density <- density(mu_draws)
+
+plot(
+  posterior_density,
+  lwd = 2,
+  xlab = expression(mu),
+  ylab = "Posterior density",
+  main = ""
+)
+
+abline(
+  v = 0,
+  lty = 2,
+  lwd = 1.2
+)
+```
+
+The estimated posterior density is unimodal and concentrated slightly to
+the right of zero, with its centre close to the estimated posterior mean
+of \(0.373\) ml. This agrees with the estimated probability
+
+\[
+P(\mu>0\mid\mathbf y)=0.740,
+\]
+
+which shows that positive values of the population mean deviation are more
+plausible than negative values.
+
+However, the posterior density still places substantial probability near
+zero and some probability on negative values. This is also reflected by
+the \(95\%\) credible interval of
+
+\[
+(-0.762,\;1.500),
+\]
+
+which contains zero. Hence, the posterior does not indicate strong evidence
+of a systematic factory-wide calibration error.
+
+Furthermore,
+
+\[
+P(|\mu|<0.5\mid\mathbf y)=0.535,
+\]
+
+so more than half of the posterior probability is assigned to population
+mean deviations within \(0.5\) ml of the target. Overall, the results
+suggest a mild tendency towards overfilling, but the likely magnitude of
+any factory-wide deviation is small and there remains considerable
+uncertainty as to whether the true population mean differs meaningfully
+from zero.
