@@ -1,0 +1,20 @@
+---
+title: "STA3043S Bayesian Analysis Assignment 1"
+author: "Alex Meyer(MYRALE008)"
+date: "2026-09-08"
+output: pdf_document
+---
+
+# STA3043S Bayesian Analysis Assignment 1
+
+## Load Data
+```{r}
+load("Data/STA3043s_Assignment1_Data.RData")
+mydata <- machineData[["DYXRYA001"]]
+
+ls(mydata)
+head(mydata)
+summary(mydata)
+
+```
+
