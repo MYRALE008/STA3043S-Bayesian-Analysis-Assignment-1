@@ -23,7 +23,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r, echo=FALSE}
-load("STA3043S_Assignment1_Data.RData")
+load("Data/STA3043S_Assignment1_Data.RData")
 mydata <- machineData[["DYXRYA001"]]
 ```
 
