@@ -1,20 +1,353 @@
 ---
-title: "STA3043S Bayesian Analysis Assignment 1"
-author: "Alex Meyer(MYRALE008)"
-date: "2026-09-08"
-output: pdf_document
+title: "STA3043S Bayesian Analysis"
+subtitle: "Assignment One Memorandum: Hierarchical Bayesian Modelling"
+author: "Ryan Daye (DYXRYA001)"
+date: "6 September 2026"
+output:
+  pdf_document:
+    latex_engine: pdflatex
+    fig_caption: true
+    keep_tex: true
+    toc: false
+    toc_depth: 1
+geometry: margin=23mm
+fontsize: 11pt
+header-includes:
+  - \usepackage{float}
+  - \usepackage{caption}
+  - \captionsetup[figure]{justification=centering,singlelinecheck=false}
 ---
 
-# STA3043S Bayesian Analysis Assignment 1
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
 
-## Load Data
-```{r}
-load("Data/STA3043s_Assignment1_Data.RData")
+```{r, echo=FALSE}
+load("STA3043S_Assignment1_Data.RData")
 mydata <- machineData[["DYXRYA001"]]
+```
 
-ls(mydata)
-head(mydata)
-summary(mydata)
+```{r, echo=FALSE}
+# Split observations by machine and calculate the summaries used below.
+machine_levels <- sort(unique(mydata$Machine))
+y_by_machine <- split(mydata$Y, mydata$Machine)
+n_j <- vapply(y_by_machine, length, integer(1))
+ybar_j <- vapply(y_by_machine, mean, numeric(1)) # Mean of each machine
+sd_j <- vapply(y_by_machine, sd, numeric(1))
+min_j <- vapply(y_by_machine, min, numeric(1))
+max_j <- vapply(y_by_machine, max, numeric(1))
+
+# Create a data frame of the above statistics so that I can plot a table
+df_machines <- data.frame(
+  Machine = machine_levels,
+  'n_j' = n_j, 
+  'Mean Deviation' = round(ybar_j, 3),
+  'SD' = round(sd_j, 3),
+  'Minimum' = round(min_j, 3),
+  'Maximum' = round(max_j, 3),
+  check.names = FALSE
+)
 
 ```
 
+# Question 1: Exploratory Analysis
+
+```{r, echo=FALSE}
+library(knitr)
+library(kableExtra)
+
+df_machines |>
+  kable(
+    format = "latex",
+    booktabs = TRUE,
+    align = c("c", "c", "c", "c", "c", "c"),
+    caption = "Machine-level exploratory summaries (volumes in ml)."
+  ) |>
+  kable_styling(
+    latex_options = c("striped", "hold_position"),
+    full_width = FALSE,
+    position = "center"
+  ) |>
+  row_spec(
+    0,
+    bold = TRUE)
+
+```
+
+The table summarises the overall performance of the seven filling machines. There are 153 bottle measurements in total, with the number of observations ranging from 5 for Machine 1 to 50 for Machine 7. The sample mean deviations range from -1.529 ml for Machine 7, which underfills on average, to 4.640 ml for Machine 2, which overfills on average. This suggests that using only a single overall mean could hide important differences between the machines. The sample standard deviations range from 1.127 to 2.873 ml. Given the small and unequal sample sizes, these values are broadly consistent with the assumed standard deviation of $\sigma = 2$, although Machine 3 shows the greatest variability.
+
+```{r, echo = FALSE, machine-boxplot, fig.cap="Observed deviations by machine. Boxes summarise the empirical distributions; points show individual bottles; the dashed line marks the 500 ml target (zero deviation).", fig.pos="H", fig.align="center", fig.width=7, fig.height=4.2, out.width="90%"}
+par(mar = c(4.2, 4.8, 0.8, 0.5), las = 1)
+
+boxplot(
+  Y ~ factor(Machine),
+  data = mydata,
+  col = "lightblue",
+  border = "navy",
+  xlab = "Machine",
+  ylab = "Deviation from 500 ml (ml)",
+  outline = FALSE
+)
+
+set.seed(69)
+
+stripchart(
+  Y ~ factor(Machine),
+  data = mydata,
+  vertical = TRUE,
+  method = "jitter",
+  pch = 16,
+  col = adjustcolor("steelblue", alpha.f = 0.5),
+  cex = 0.7,
+  add = TRUE
+)
+
+abline(
+  h = 0,
+  lty = 2,
+  lwd = 1.2,
+  col = "red"
+)
+
+```
+
+Figure 1 supports the findings from Table 1. Machine 2 clearly tends to overfill, as all its observations are above the zero-deviation line. In contrast, Machines 6 and 7 tend to underfill, with their medians and most observations below zero. Machines 3, 4 and 5 have observations on both sides of the target, although Machine 3 shows noticeably more variation. Machine 1 also appears to underfill slightly, but this is based on only five observations. Overall, the plot shows clear differences in both the average deviation and variability of the machines.
+
+
+# Question 2
+
+### (a)
+
+The observation model is
+
+\[
+Y_{ij}\mid\theta_j \sim N(\theta_j,\sigma^2),
+\]
+
+so we may write
+
+\[
+Y_{ij}=\theta_j+\varepsilon_{ij},
+\qquad
+\varepsilon_{ij}\overset{\mathrm{iid}}{\sim}N(0,\sigma^2).
+\]
+
+The sample mean for machine \(j\) is therefore
+
+\[
+\begin{aligned}
+\overline{Y}_j
+&=\frac{1}{n_j}\sum_{i=1}^{n_j}Y_{ij} \\
+&=\frac{1}{n_j}\sum_{i=1}^{n_j}
+  \left(\theta_j+\varepsilon_{ij}\right) \\
+&=\theta_j+\overline{\varepsilon}_j,
+\end{aligned}
+\]
+
+where
+
+\[
+\overline{\varepsilon}_j
+=\frac{1}{n_j}\sum_{i=1}^{n_j}\varepsilon_{ij}.
+\]
+
+Because the errors are independent,
+
+\[
+\begin{aligned}
+\operatorname{Var}(\overline{\varepsilon}_j)
+&=\operatorname{Var}\left(
+  \frac{1}{n_j}\sum_{i=1}^{n_j}\varepsilon_{ij}
+  \right) \\
+&=\frac{1}{n_j^2}
+  \sum_{i=1}^{n_j}\operatorname{Var}(\varepsilon_{ij}) \\
+&=\frac{1}{n_j^2}(n_j\sigma^2) \\
+&=\frac{\sigma^2}{n_j}.
+\end{aligned}
+\]
+
+Thus,
+
+\[
+\overline{Y}_j\mid\theta_j
+\sim N\left(\theta_j,\frac{\sigma^2}{n_j}\right).
+\]
+
+The population model is
+
+\[
+\theta_j\mid\mu\sim N(\mu,\tau^2).
+\]
+
+Equivalently, we may write
+
+\[
+\theta_j=\mu+u_j,
+\qquad
+u_j\sim N(0,\tau^2).
+\]
+
+Consequently,
+
+\[
+\overline{Y}_j
+=\mu+u_j+\overline{\varepsilon}_j.
+\]
+
+Conditional on \(\mu\), the random variables \(u_j\) and
+\(\overline{\varepsilon}_j\) are independent. Therefore,
+
+\[
+\begin{aligned}
+\operatorname{E}(\overline{Y}_j\mid\mu)
+&=\mu,\\
+\operatorname{Var}(\overline{Y}_j\mid\mu)
+&=\operatorname{Var}(u_j)
+  +\operatorname{Var}(\overline{\varepsilon}_j)\\
+&=\tau^2+\frac{\sigma^2}{n_j}.
+\end{aligned}
+\]
+
+Since the sum of independent normally distributed random variables is
+normally distributed, it follows that
+
+\[
+\boxed{
+\overline{Y}_j\mid\mu
+\sim
+N\left(
+\mu,\,
+\tau^2+\frac{\sigma^2}{n_j}
+\right).
+}
+\]
+
+The term \(\tau^2\) represents the between-machine variability caused by
+the machine-specific parameters \(\theta_j\) varying around \(\mu\).
+The term \(\sigma^2/n_j\) represents the within-machine sampling
+variability in the sample mean based on \(n_j\) observations.
+
+### (b)
+
+Define
+
+\[
+V_j=\tau^2+\frac{\sigma^2}{n_j}.
+\]
+
+From part (a),
+
+\[
+\overline{Y}_j\mid\mu\sim N(\mu,V_j).
+\]
+
+Assuming conditional independence across the \(J\) machines, the
+likelihood for \(\mu\) is
+
+\[
+\begin{aligned}
+L(\mu;\mathbf{y})
+&=\prod_{j=1}^{J}
+  \frac{1}{\sqrt{2\pi V_j}}
+  \exp\left\{
+  -\frac{(\overline{y}_j-\mu)^2}{2V_j}
+  \right\}\\
+&\propto
+  \exp\left\{
+  -\frac{1}{2}
+  \sum_{j=1}^{J}
+  \frac{(\overline{y}_j-\mu)^2}{V_j}
+  \right\}.
+\end{aligned}
+\]
+
+Using the Laplace prior
+
+\[
+\pi(\mu)=\frac{c}{2}\exp\{-c|\mu|\},
+\qquad c>0,
+\]
+
+Bayes' theorem gives
+
+\[
+\pi(\mu\mid\mathbf{y})
+\propto
+\exp\left\{
+-\frac{1}{2}
+\sum_{j=1}^{J}
+\frac{(\overline{y}_j-\mu)^2}{V_j}
+\right\}
+\exp\{-c|\mu|\}.
+\]
+
+To complete the square, define
+
+\[
+A=\sum_{j=1}^{J}\frac{1}{V_j},
+\qquad
+B=\sum_{j=1}^{J}\frac{\overline{y}_j}{V_j},
+\qquad
+C=\sum_{j=1}^{J}\frac{\overline{y}_j^2}{V_j}.
+\]
+
+Then
+
+\[
+\begin{aligned}
+\sum_{j=1}^{J}
+\frac{(\overline{y}_j-\mu)^2}{V_j}
+&=
+\sum_{j=1}^{J}
+\frac{\overline{y}_j^2-2\mu\overline{y}_j+\mu^2}{V_j}\\
+&=A\mu^2-2B\mu+C\\
+&=A\left(\mu-\frac{B}{A}\right)^2
+  +C-\frac{B^2}{A}.
+\end{aligned}
+\]
+
+Define
+
+\[
+m=\frac{B}{A}
+=
+\frac{
+\displaystyle\sum_{j=1}^{J}\frac{\overline{y}_j}{V_j}
+}{
+\displaystyle\sum_{j=1}^{J}\frac{1}{V_j}
+}
+\]
+
+and
+
+\[
+v=\frac{1}{A}
+=
+\left(
+\sum_{j=1}^{J}\frac{1}{V_j}
+\right)^{-1}.
+\]
+
+Therefore,
+
+\[
+\sum_{j=1}^{J}
+\frac{(\overline{y}_j-\mu)^2}{V_j}
+=
+\frac{(\mu-m)^2}{v}
++C-\frac{B^2}{A}.
+\]
+
+The final two terms do not depend on \(\mu\), so they are absorbed into
+the proportionality constant. Hence,
+
+\[
+\boxed{
+\pi(\mu\mid\mathbf{y})
+\propto
+\exp\left\{
+-\frac{(\mu-m)^2}{2v}
+\right\}
+\exp\{-c|\mu|\}.
+}
+\]
