@@ -848,3 +848,168 @@ suggest a mild tendency towards overfilling, but the likely magnitude of
 any factory-wide deviation is small and there remains considerable
 uncertainty as to whether the true population mean differs meaningfully
 from zero.
+
+# Question 4
+
+### (a)
+
+as shown in question 2a the likelihood here is,
+
+\[
+\overline{Y}_j \mid \theta_j \sim N\left(\theta_j, \frac{\sigma^2}{n_j}\right).
+\]
+
+the given prior is 
+
+\[
+\theta_j \mid \mu \sim N(\mu, \tau^2),
+\]
+
+using Bayes theorem to find the posterior for \(\theta_j\),
+
+\[
+\pi(\theta_j \mid \mu, \mathbf{y})
+\propto
+f(\overline{y}_j \mid \theta_j)\,\pi(\theta_j \mid \mu).
+\]
+
+equaling
+
+\[
+\pi(\theta_j \mid \mu, \mathbf{y})
+\propto
+\exp\left\{-\frac{n_j(\overline{y}_j-\theta_j)^2}{2\sigma^2}\right\}
+\exp\left\{-\frac{(\theta_j-\mu)^2}{2\tau^2}\right\}.
+\]
+
+Consider the exponent of \(\pi(\theta_j \mid \mu, \mathbf{y})\):
+
+\[
+-\frac{1}{2}
+\left[
+\frac{n_j(\overline{y}_j-\theta_j)^2}{\sigma^2}
++\frac{(\theta_j-\mu)^2}{\tau^2}
+\right].
+\]
+
+expand 
+
+\[
+\begin{aligned}
+\frac{n_j(\overline{y}_j-\theta_j)^2}{\sigma^2}
+&=\frac{n_j}{\sigma^2}
+  \left(\overline{y}_j^2-2\theta_j\overline{y}_j+\theta_j^2\right),\\[4pt]
+\frac{(\theta_j-\mu)^2}{\tau^2}
+&=\frac{1}{\tau^2}
+  \left(\theta_j^2-2\theta_j\mu+\mu^2\right).
+\end{aligned}
+\]
+
+collect like terms 
+
+\[
+A_j=\frac{n_j}{\sigma^2}+\frac{1}{\tau^2},
+\qquad
+B_j=\frac{n_j\overline{y}_j}{\sigma^2}+\frac{\mu}{\tau^2},
+\qquad
+C_j=\frac{n_j\overline{y}_j^2}{\sigma^2}+\frac{\mu^2}{\tau^2}.
+\]
+
+then
+
+\[
+\frac{n_j(\overline{y}_j-\theta_j)^2}{\sigma^2}
++\frac{(\theta_j-\mu)^2}{\tau^2}
+=A_j\theta_j^2-2B_j\theta_j+C_j.
+\]
+
+complete the square
+
+\[
+A_j\theta_j^2-2B_j\theta_j+C_j
+=A_j\left(\theta_j-\frac{B_j}{A_j}\right)^2
++C_j-\frac{B_j^2}{A_j}.
+\]
+
+Define
+
+\[
+m_j=\frac{B_j}{A_j},
+\qquad
+v_j=\frac{1}{A_j}.
+\]
+
+Therefore,
+
+\[
+\frac{n_j(\overline{y}_j-\theta_j)^2}{\sigma^2}
++\frac{(\theta_j-\mu)^2}{\tau^2}
+=\frac{(\theta_j-m_j)^2}{v_j}
++C_j-\frac{B_j^2}{A_j}.
+\]
+
+The final two terms not involving \(\theta_j\) are dropped into the proportionallity constant
+and finally substituting gives. 
+
+\[
+\pi(\theta_j \mid \mu, \mathbf{y})
+\propto
+\exp\left\{-\frac{(\theta_j-m_j)^2}{2v_j}\right\}.
+\]
+
+Hence,
+
+\[
+\boxed{
+\theta_j \mid \mu, \mathbf{y} \sim N(m_j, v_j).
+}
+\]
+
+### (b)
+
+Recall from part (a) that
+
+\[
+m_j=\frac{B_j}{A_j},
+\qquad
+A_j=\frac{n_j}{\sigma^2}+\frac{1}{\tau^2},
+\qquad
+B_j=\frac{n_j\overline{y}_j}{\sigma^2}+\frac{\mu}{\tau^2}.
+\]
+
+The prior mean is:  \(\mu\)\
+The sample mean is: \(\overline{y}_j\)
+
+Define the weights to be:
+
+\[
+w_j=\frac{\tau^2}{V_j},
+\qquad
+1-w_j=\frac{\sigma^2/n_j}{V_j},
+\qquad
+V_j=\tau^2+\frac{\sigma^2}{n_j}.
+\]
+
+The weighted average of the prior mean and the sample mean are
+
+\[
+\begin{aligned}
+w_j\overline{y}_j+(1-w_j)\mu
+&=\frac{\tau^2}{V_j}\overline{y}_j+\frac{\sigma^2/n_j}{V_j}\mu\\
+&=\frac{\tau^2\overline{y}_j+(\sigma^2/n_j)\mu}{V_j}\\
+&=\frac{n_j\tau^2\overline{y}_j+\sigma^2\mu}{n_j\tau^2+\sigma^2}\\
+&=\frac{n_j\overline{y}_j/\sigma^2+\mu/\tau^2}{n_j/\sigma^2+1/\tau^2}\\
+&=\frac{B_j}{A_j}\\
+&=m_j.
+\end{aligned}
+\]
+
+Hence,
+
+\[
+\boxed{
+m_j=w_j\overline{y}_j+(1-w_j)\mu.
+}
+\]
+
+Here we can clearly see shrinkage at play as the posterior mean of \(\theta_j\) is a weighted average of the prior mean and the sample mean. The posterior mean is pulled away from its sample mean towards its shared population mean with weight 1-w_j. This weighting makes intuitive sense as the lower amount of observations for the sample mean make it more unreliable and less valuable to estimating the posterior mean this is included in the weighting as a low n_j results in the sample mean being weighted less. The same is also true for a large n_j this allows us to use the data more effectively allowing the mean to change depending on the data of that machine. 
