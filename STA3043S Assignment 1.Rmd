@@ -1059,8 +1059,8 @@ $$
 $$
 
 we first use the Acceptance--Rejection samples
-$\mu^{(1)},\ldots,\mu^{(N)}$ obtained in Question 3. For each sampled
-value $\mu^{(s)}$, we then generate
+\(\mu^{(1)},\ldots,\mu^{(N)}\) obtained in Question 3. For each sampled
+value \(\mu^{(s)}\), we then generate
 
 $$
 \theta_j^{(s)}
@@ -1068,8 +1068,8 @@ $$
 \pi(\theta_j\mid\mu^{(s)},\mathbf{y}).
 $$
 
-Repeating this for every posterior draw of $\mu$ produces samples from
-the marginal posterior distribution of $\theta_j$ for each machine.
+Repeating this for every posterior draw of \(\mu\) produces samples from
+the marginal posterior distribution of \(\theta_j\) for each machine.
 
 ```{r theta-sampling, echo=FALSE}
 # mu_draws contains the 5000 posterior samples from the AR sampler
@@ -1110,7 +1110,7 @@ for (j in 1:J) {
 colnames(theta_draws) <- paste0("Machine ", machine_levels)
 ```
 
-The posterior mean of each $\theta_j$ is estimated using the mean of its
+The posterior mean of each \(\theta_j\) is estimated using the mean of its
 simulated marginal posterior draws.
 
 ```{r theta-summary, echo=FALSE}
@@ -1154,7 +1154,7 @@ To visualise the shrinkage, the observed machine means are compared with
 their posterior means. The line joining the two values for each machine
 shows the direction and magnitude of shrinkage. The dashed horizontal
 line represents the posterior mean of the population-level parameter
-$\mu$.
+\(\mu\).
 
 ```{r shrinkage-plot, echo=FALSE, fig.cap="Shrinkage of the observed machine means towards the posterior population mean.", fig.pos="H", fig.align="center", fig.width=7, fig.height=4.5}
 mu_posterior_mean <- mean(mu_draws)
@@ -1214,16 +1214,16 @@ legend(
 
 The posterior means demonstrate the shrinkage expected under the
 hierarchical model. Each machine-specific posterior mean is pulled from
-its observed sample mean $\overline{y}_j$ towards the common population
+its observed sample mean \(\overline{y}_j\) towards the common population
 mean. For example, Machine 2 has an observed mean deviation of
 $4.640$ ml, but its posterior estimate is pulled noticeably downwards
 towards the population mean. Machine 1 also experiences visible
 shrinkage towards the population mean.
 
 The amount of shrinkage decreases as the number of observations for a
-machine increases. Machine 1 has only $n_1=5$ observations and therefore
+machine increases. Machine 1 has only \(n_1=5\) observations and therefore
 borrows relatively more information from the population. In contrast,
-Machine 7 has $n_7=50$ observations, so its observed sample mean is more
+Machine 7 has \(n_7=50\) observations, so its observed sample mean is more
 precise and its posterior mean remains much closer to its observed mean.
 
 This agrees with the result from part (b),
@@ -1245,7 +1245,7 @@ w_j
 {\tau^2+\sigma^2/n_j}.
 $$
 
-As $n_j$ increases, $w_j$ approaches one, placing greater weight on the
+As \(n_j\)increases, \(w_j\) approaches one, placing greater weight on the
 machine-specific sample mean and producing less shrinkage. Thus the
 hierarchical model performs partial pooling: machines with less data
 borrow more information from the overall population, while machines with
