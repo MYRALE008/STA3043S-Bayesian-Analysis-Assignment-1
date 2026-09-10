@@ -358,41 +358,41 @@ the proportionality constant. Hence,
 
 From the result of Question 2, the posterior density of \(\mu\) is proportional to
 
-\[
+$$
 \pi(\mu\mid\mathbf y)
 \propto
 \exp\left\{
 -\frac{(\mu-m)^2}{2v}
 \right\}
 \exp\{-c|\mu|\}.
-\]
+$$
 
 The first term is proportional to the density of a Normal distribution
 with mean \(m\) and variance \(v\). Therefore, a natural candidate
 distribution for Acceptance Rejection sampling is
 
-\[
+$$
 h(\mu)=N(m,v).
-\]
+$$
 
 The density of this is:
 
-\[
+$$
 h(\mu)
 =
 \frac{1}{\sqrt{2\pi v}}
 \exp\left\{
 -\frac{(\mu-m)^2}{2v}
 \right\}.
-\]
+$$
 
 This is an appropriate candidate because it matches the Gaussian component
 of the target posterior exactly. Due to the absoult value of \(\mu\),
 The remaining factor satisfies:
 
-\[
+$$
 0 < \exp\{-c|\mu|\} \leq 1
-\]
+$$
 
 for all \(\mu\). Hence the target density is bounded by a constant multiple
 of \(h(\mu)\), as required for Acceptance Rejection sampling. Furthermore,
@@ -403,51 +403,51 @@ the additional factor \(\exp\{-c|\mu|\}\)
 
 From part (a), choose the candidate density
 
-\[
+$$
 h(\mu)
 =
 \frac{1}{\sqrt{2\pi v}}
 \exp\left\{
 -\frac{(\mu-m)^2}{2v}
 \right\},
-\]
+$$
 
 so that
 
-\[
+$$
 \mu^\ast \sim N(m,v).
-\]
+$$
 
 The unnormalised target posterior density is
 
-\[
+$$
 \pi^\ast(\mu\mid\mathbf y)
 =
 \exp\left\{
 -\frac{(\mu-m)^2}{2v}
 \right\}
 \exp\{-c|\mu|\}.
-\]
+$$
 
 For Acceptance Rejection sampling, we require a constant \(C\) such that
 
-\[
+$$
 \pi^\ast(\mu\mid\mathbf y)
 \leq C h(\mu)
-\]
+$$
 
 for all \(\mu\). The smallest suitable value of \(C\) is
 
-\[
+$$
 C
 =
 \max_{\mu}
 \frac{\pi^\ast(\mu\mid\mathbf y)}{h(\mu)}.
-\]
+$$
 
 Now,
 
-\[
+$$
 \begin{aligned}
 \frac{\pi^\ast(\mu\mid\mathbf y)}{h(\mu)}
 &=
@@ -465,35 +465,35 @@ Now,
 &=
 \sqrt{2\pi v}\exp\{-c|\mu|\}.
 \end{aligned}
-\]
+$$
 
 Since
 
-\[
+$$
 \exp\{-c|\mu|\}
-\]
+$$
 
 is maximised when
 
-\[
+$$
 |\mu|=0,
-\]
+$$
 
 that is, when \(\mu=0\), its maximum value is
 
-\[
+$$
 \exp(0)=1.
-\]
+$$
 
 Therefore,
 
-\[
+$$
 C=\sqrt{2\pi v}.
-\]
+$$
 
 The probability of accepting a candidate value \(\mu\) is
 
-\[
+$$
 \gamma(\mu)
 =
 \frac{
@@ -501,12 +501,12 @@ The probability of accepting a candidate value \(\mu\) is
 }{
 C h(\mu)
 }.
-\]
+$$
 
 Substituting the expressions for \(\pi^\ast(\mu\mid\mathbf y)\),
 \(C\), and \(h(\mu)\),
 
-\[
+$$
 \begin{aligned}
 \gamma(\mu)
 &=
@@ -527,31 +527,31 @@ Substituting the expressions for \(\pi^\ast(\mu\mid\mathbf y)\),
 &=
 \exp\{-c|\mu|\}.
 \end{aligned}
-\]
+$$
 
 Since \(c=0.25\),
 
-\[
+$$
 \gamma(\mu)
 =
 \exp\{-0.25|\mu|\}.
-\]
+$$
 
 ### (c)
 
 Using the candidate distribution from part (a),
 
-\[
+$$
 \mu^\ast \sim N(m,v),
-\]
+$$
 
 and the acceptance probability derived in part (b),
 
-\[
+$$
 \gamma(\mu^\ast)
 =
 \exp\{-c|\mu^\ast|\},
-\]
+$$
 
 ```{r accept reject, echo=FALSE}
 ar <- function(n = 10000, m, v, c = 0.25) {
@@ -635,16 +635,16 @@ Using the Acceptance Rejection samples
 \(\mu^{(1)},\ldots,\mu^{(N)}\) from the posterior distribution, the
 posterior mean is estimated by
 
-\[
+$$
 \widehat{E[\mu\mid\mathbf y]}
 =
 \frac{1}{N}
 \sum_{s=1}^{N}\mu^{(s)},
-\]
+$$
 
 and the posterior variance is estimated by
 
-\[
+$$
 \widehat{\operatorname{Var}(\mu\mid\mathbf y)}
 =
 \frac{1}{N-1}
@@ -652,7 +652,7 @@ and the posterior variance is estimated by
 \left(
 \mu^{(s)}-\bar{\mu}
 \right)^2.
-\]
+$$
 
 ```{r Mean and variance, echo=FALSE}
 posterior_mean <- mean(mu_draws)
@@ -734,19 +734,19 @@ The posterior probability that the population of machines overfills on
 average is estimated by the proportion of posterior draws for which
 \(\mu>0\):
 
-\[
+$$
 P(\mu>0\mid\mathbf y)
 \approx
 \frac{1}{N}
 \sum_{s=1}^{N}
 I\left(\mu^{(s)}>0\right).
-\]
+$$
 
-Similarly,
+Similarly:
 
-\[
+$$
 P(|\mu|<0.5\mid\mathbf y)
-\]
+$$
 
 is estimated by the proportion of posterior draws lying between
 \(-0.5\) ml and \(0.5\) ml.
@@ -814,40 +814,39 @@ abline(
 )
 ```
 
-The estimated posterior density is unimodal and concentrated slightly to
-the right of zero, with its centre close to the estimated posterior mean
-of \(0.373\) ml. This agrees with the estimated probability
+The posterior mean of \(\mu\) is 0.373 ml, suggesting that the population of filling machines has a slight tendency to overfill relative to the 500 ml target. This is supported by
 
-\[
-P(\mu>0\mid\mathbf y)=0.740,
-\]
+$$
+P(\mu > 0 \mid y) = 0.7404,
+$$
 
-which shows that positive values of the population mean deviation are more
-plausible than negative values.
+so there is approximately a 74\% posterior probability that the average machine deviation is positive.
 
-However, the posterior density still places substantial probability near
-zero and some probability on negative values. This is also reflected by
-the \(95\%\) credible interval of
+However, the 95\% posterior credible interval is
 
-\[
-(-0.762,\;1.500),
-\]
+$$
+(-0.762,\;1.500)\text{ ml},
+$$
 
-which contains zero. Hence, the posterior does not indicate strong evidence
-of a systematic factory-wide calibration error.
+which contains zero. This indicates that there is still substantial uncertainty about whether the population of machines systematically overfills or under fills the containers.
 
 Furthermore,
 
-\[
-P(|\mu|<0.5\mid\mathbf y)=0.535,
-\]
+$$
+P(|\mu| < 0.5 \mid y) = 0.5354,
+$$
 
-so more than half of the posterior probability is assigned to population
-mean deviations within \(0.5\) ml of the target. Overall, the results
-suggest a mild tendency towards overfilling, but the likely magnitude of
-any factory-wide deviation is small and there remains considerable
-uncertainty as to whether the true population mean differs meaningfully
-from zero.
+meaning that more than half of the posterior probability is assigned to population mean deviations within 0.5 ml of the target.
+This suggests that, even if there is some overall calibration bias, its magnitude is likely to be relatively small.
+
+The posterior density is unimodal and concentrated slightly to the right of zero, which is consistent with the posterior mean and
+the probability \(P(\mu > 0 \mid y)\). At the same time, the density still assigns appreciable probability to values near and
+below zero.
+
+Overall, the results provide mild evidence of factory-wide overfilling, but there is not strong evidence of a practically
+important systematic calibration error. These results are relevant because \(\mu\) represents the average deviation across the
+population of filling machines, so inference about \(\mu\) indicates whether the manufacturing process is systematically
+miscalibrated at the factory level rather than only for individual machines.
 
 # Question 4
 
@@ -1013,3 +1012,241 @@ m_j=w_j\overline{y}_j+(1-w_j)\mu.
 \]
 
 Here we can clearly see shrinkage at play as the posterior mean of \(\theta_j\) is a weighted average of the prior mean and the sample mean. The posterior mean is pulled away from its sample mean towards its shared population mean with weight 1-w_j. This weighting makes intuitive sense as the lower amount of observations for the sample mean make it more unreliable and less valuable to estimating the posterior mean this is included in the weighting as a low n_j results in the sample mean being weighted less. The same is also true for a large n_j this allows us to use the data more effectively allowing the mean to change depending on the data of that machine. 
+
+### (c)
+
+From part (a),
+
+$$
+\theta_j \mid \mu,\mathbf{y}
+\sim
+N(m_j,v_j),
+$$
+
+where
+
+$$
+v_j
+=
+\left(
+\frac{n_j}{\sigma^2}
++
+\frac{1}{\tau^2}
+\right)^{-1}
+$$
+
+and
+
+$$
+m_j
+=
+v_j
+\left(
+\frac{n_j\overline{y}_j}{\sigma^2}
++
+\frac{\mu}{\tau^2}
+\right).
+$$
+
+To obtain samples from the marginal posterior
+
+$$
+\pi(\theta_j\mid\mathbf{y})
+=
+\int
+\pi(\theta_j\mid\mu,\mathbf{y})
+\pi(\mu\mid\mathbf{y})\,d\mu,
+$$
+
+we first use the Acceptance--Rejection samples
+$\mu^{(1)},\ldots,\mu^{(N)}$ obtained in Question 3. For each sampled
+value $\mu^{(s)}$, we then generate
+
+$$
+\theta_j^{(s)}
+\sim
+\pi(\theta_j\mid\mu^{(s)},\mathbf{y}).
+$$
+
+Repeating this for every posterior draw of $\mu$ produces samples from
+the marginal posterior distribution of $\theta_j$ for each machine.
+
+```{r theta-sampling, echo=FALSE}
+# mu_draws contains the 5000 posterior samples from the AR sampler
+N <- length(mu_draws)
+J <- length(ybar_j)
+
+# Matrix to store the posterior draws for each theta_j
+theta_draws <- matrix(
+  NA,
+  nrow = N,
+  ncol = J
+)
+
+set.seed(70)
+
+for (j in 1:J) {
+
+  # Conditional posterior variance of theta_j
+  v_theta_j <- 1 / (
+    n_j[j] / sigma2 +
+    1 / tau2
+  )
+
+  # Conditional posterior mean for each sampled value of mu
+  m_theta_j <- v_theta_j * (
+    n_j[j] * ybar_j[j] / sigma2 +
+    mu_draws / tau2
+  )
+
+  # Draw theta_j | mu, y
+  theta_draws[, j] <- rnorm(
+    N,
+    mean = m_theta_j,
+    sd = sqrt(v_theta_j)
+  )
+}
+
+colnames(theta_draws) <- paste0("Machine ", machine_levels)
+```
+
+The posterior mean of each $\theta_j$ is estimated using the mean of its
+simulated marginal posterior draws.
+
+```{r theta-summary, echo=FALSE}
+theta_posterior_means <- colMeans(theta_draws)
+
+theta_intervals <- t(
+  apply(
+    theta_draws,
+    2,
+    quantile,
+    probs = c(0.025, 0.975)
+  )
+)
+
+theta_summary <- data.frame(
+  `Machine` = machine_levels,
+  `n_j` = n_j,
+  `Observed Mean` = round(ybar_j, 3),
+  `Posterior Mean` = round(theta_posterior_means, 3),
+  `Lower 95%` = round(theta_intervals[, 1], 3),
+  `Upper 95%` = round(theta_intervals[, 2], 3),
+  check.names = FALSE
+)
+
+theta_summary |>
+  kable(
+    format = "latex",
+    booktabs = TRUE,
+    align = c("c", "c", "c", "c", "c", "c"),
+    caption = "Observed and posterior machine-specific mean deviations."
+  ) |>
+  kable_styling(
+    latex_options = c("striped", "hold_position"),
+    full_width = FALSE,
+    position = "center"
+  ) |>
+  row_spec(0, bold = TRUE)
+```
+
+To visualise the shrinkage, the observed machine means are compared with
+their posterior means. The line joining the two values for each machine
+shows the direction and magnitude of shrinkage. The dashed horizontal
+line represents the posterior mean of the population-level parameter
+$\mu$.
+
+```{r shrinkage-plot, echo=FALSE, fig.cap="Shrinkage of the observed machine means towards the posterior population mean.", fig.pos="H", fig.align="center", fig.width=7, fig.height=4.5}
+mu_posterior_mean <- mean(mu_draws)
+
+plot(
+  machine_levels,
+  ybar_j,
+  pch = 16,
+  ylim = range(c(
+    ybar_j,
+    theta_posterior_means,
+    mu_posterior_mean
+  )),
+  xlab = "Machine",
+  ylab = "Mean deviation from 500 ml (ml)",
+  main = "",
+  xaxt = "n"
+)
+
+axis(
+  1,
+  at = machine_levels,
+  labels = machine_levels
+)
+
+segments(
+  x0 = machine_levels,
+  y0 = ybar_j,
+  x1 = machine_levels,
+  y1 = theta_posterior_means
+)
+
+points(
+  machine_levels,
+  theta_posterior_means,
+  pch = 17
+)
+
+abline(
+  h = mu_posterior_mean,
+  lty = 2,
+  lwd = 1.2
+)
+
+legend(
+  "topright",
+  legend = c(
+    "Observed machine mean",
+    "Posterior machine mean",
+    "Posterior population mean"
+  ),
+  pch = c(16, 17, NA),
+  lty = c(NA, NA, 2),
+  bty = "n"
+)
+```
+
+The posterior means demonstrate the shrinkage expected under the
+hierarchical model. Each machine-specific posterior mean is pulled from
+its observed sample mean $\overline{y}_j$ towards the common population
+mean. For example, Machine 2 has an observed mean deviation of
+$4.640$ ml, but its posterior estimate is pulled noticeably downwards
+towards the population mean. Machine 1 also experiences visible
+shrinkage towards the population mean.
+
+The amount of shrinkage decreases as the number of observations for a
+machine increases. Machine 1 has only $n_1=5$ observations and therefore
+borrows relatively more information from the population. In contrast,
+Machine 7 has $n_7=50$ observations, so its observed sample mean is more
+precise and its posterior mean remains much closer to its observed mean.
+
+This agrees with the result from part (b),
+
+$$
+m_j
+=
+w_j\overline{y}_j
++
+(1-w_j)\mu,
+$$
+
+where
+
+$$
+w_j
+=
+\frac{\tau^2}
+{\tau^2+\sigma^2/n_j}.
+$$
+
+As $n_j$ increases, $w_j$ approaches one, placing greater weight on the
+machine-specific sample mean and producing less shrinkage. Thus the
+hierarchical model performs partial pooling: machines with less data
+borrow more information from the overall population, while machines with
+more data are influenced more strongly by their own observations.
