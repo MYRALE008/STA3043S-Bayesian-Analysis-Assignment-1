@@ -1011,7 +1011,7 @@ m_j=w_j\overline{y}_j+(1-w_j)\mu.
 }
 \]
 
-Here we can clearly see shrinkage at play as the posterior mean of \(\theta_j\) is a weighted average of the prior mean and the sample mean. The posterior mean is pulled away from its sample mean towards its shared population mean with weight 1-w_j. This weighting makes intuitive sense as the lower amount of observations for the sample mean make it more unreliable and less valuable to estimating the posterior mean this is included in the weighting as a low n_j results in the sample mean being weighted less. The same is also true for a large n_j this allows us to use the data more effectively allowing the mean to change depending on the data of that machine. 
+Here we can clearly see shrinkage at play as the posterior mean of \(\theta_j\) is a weighted average of the prior mean and the sample mean. The posterior mean is pulled away from its sample mean towards its shared population mean with weight \(1-w_j\). This weighting makes intuitive sense as the lower amount of observations for the sample mean make it more unreliable and less valuable to estimating the posterior mean this is included in the weighting as a low \(n_j\) results in the sample mean being weighted less. The same is also true for a large \(n_j\) this allows us to use the data more effectively allowing the mean to change depending on the data of that machine. 
 
 ### (c)
 
@@ -1250,3 +1250,112 @@ machine-specific sample mean and producing less shrinkage. Thus the
 hierarchical model performs partial pooling: machines with less data
 borrow more information from the overall population, while machines with
 more data are influenced more strongly by their own observations.
+
+# Question 5
+
+### (a)
+
+The distribution of \(Y_{i,\text{new}}\mid\mu\) is obtained by integrating
+\(\theta_{\text{new}}\) out of the joint density formed from the observation
+model \(Y_{i,\text{new}}\mid\theta_{\text{new}}\) and the prior
+\(\theta_{\text{new}}\mid\mu\):
+
+\[
+f(y_{i,\text{new}}\mid\mu)
+=
+\int_{-\infty}^{\infty}
+f(y_{i,\text{new}}\mid\theta_{\text{new}})\,
+\pi(\theta_{\text{new}}\mid\mu)\,
+d\theta_{\text{new}},
+\]
+
+where
+
+\[
+Y_{i,\text{new}}\mid\theta_{\text{new}}\sim N(\theta_{\text{new}},\sigma^2),
+\qquad
+\theta_{\text{new}}\mid\mu\sim N(\mu,\tau^2).
+\]
+
+We know that the distribution \(Y_{i,\text{new}}\mid\mu\) is normally distributed as it is the product of two normal distribution .Hence, the mean and variance of
+\(Y_{i,\text{new}}\mid\mu\) can be obtained using the tower property and
+the law of total variance, conditioning on \(\theta_{\text{new}}\).
+
+\textbf{Mean, by the tower property:}
+
+\[
+\begin{aligned}
+\operatorname{E}(Y_{i,\text{new}}\mid\mu)
+&=\operatorname{E}\Big[\operatorname{E}\big(Y_{i,\text{new}}\mid\theta_{\text{new}}\big)\,\Big|\,\mu\Big]\\
+&=\operatorname{E}\big[\theta_{\text{new}}\mid\mu\big]\\
+&=\mu.
+\end{aligned}
+\]
+
+\textbf{Variance, by the law of total variance:}
+
+\[
+\begin{aligned}
+\operatorname{Var}(Y_{i,\text{new}}\mid\mu)
+&=\operatorname{E}\Big[\operatorname{Var}\big(Y_{i,\text{new}}\mid\theta_{\text{new}}\big)\,\Big|\,\mu\Big]
+  +\operatorname{Var}\Big[\operatorname{E}\big(Y_{i,\text{new}}\mid\theta_{\text{new}}\big)\,\Big|\,\mu\Big]\\
+&=\operatorname{E}\big[\sigma^2\mid\mu\big]
+  +\operatorname{Var}\big[\theta_{\text{new}}\mid\mu\big]\\
+&=\sigma^2+\tau^2.
+\end{aligned}
+\]
+
+Therefore the distribution of \(Y_{i,\text{new}}\mid\mu\) is:
+
+\[
+\boxed{
+Y_{i,\text{new}}\mid\mu
+\sim
+N\left(\mu,\ \sigma^2+\tau^2\right).
+}
+\]
+
+### (b)
+
+We want to find \(\operatorname{E}[Y_{i,\text{new}}\mid\mathbf{y}]\) so by the tower property:
+\[
+\operatorname{E}[Y_{i,\text{new}}\mid\mathbf{y}]
+=
+\operatorname{E}_\mu\Big[\operatorname{E}(Y_{i,\text{new}}\mid\mu)\,\Big|\,\mathbf{y}\Big]
+=
+\operatorname{E}[\mu\mid\mathbf{y}].
+\]
+
+From part (a) we know \(\operatorname{E}(Y_{i,\text{new}}\mid\mu)=\mu\), hence \(\operatorname{E}[Y_{i,\text{new}}\mid\mathbf{y}] = \operatorname{E}[\mu\mid\mathbf{y}]\) as having no data the mean relies entirely on the population mean which is the same as question 3(d)(i):
+
+\[
+\boxed{
+\widehat{\operatorname{E}[Y_{i,\text{new}}\mid\mathbf{y}]}
+=
+\widehat{\operatorname{E}[\mu\mid\mathbf{y}]}
+=
+0.373 \text{ ml}.
+}
+\]
+
+```{r, echo = FALSE}
+set.seed(69)  
+
+y_new_draws <- rnorm(
+  length(mu_draws),
+  mean = mu_draws,
+  sd = sqrt(sigma2 + tau2)
+)
+
+posterior_predictive_mean <- mean(y_new_draws)
+
+plot(
+  density(y_new_draws),
+  lwd = 2,
+  xlab = "Simulated deviation of a new machine's bottle from 500ml (ml)",
+  ylab = "Posterior predictive density",
+  main = "Posterior predictive distribution of a new bottle's deviation"
+)
+abline(v = 0, lty = 2, lwd = 1.2)
+
+```
