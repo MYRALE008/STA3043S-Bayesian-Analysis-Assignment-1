@@ -1255,46 +1255,48 @@ more data are influenced more strongly by their own observations.
 
 ### (a)
 
-The distribution of \(Y_{i,\text{new}}\mid\mu\) is obtained by integrating
-\(\theta_{\text{new}}\) out of the joint density formed from the observation
-model \(Y_{i,\text{new}}\mid\theta_{\text{new}}\) and the prior
-\(\theta_{\text{new}}\mid\mu\):
+The distribution of $Y_{i,\text{new}}\mid\mu$ is obtained by integrating
+$\theta_{\text{new}}$ out of the joint density formed from the
+observation model $Y_{i,\text{new}}\mid\theta_{\text{new}}$ and the
+prior $\theta_{\text{new}}\mid\mu$:
 
-\[
+$$
 f(y_{i,\text{new}}\mid\mu)
 =
 \int_{-\infty}^{\infty}
 f(y_{i,\text{new}}\mid\theta_{\text{new}})\,
 \pi(\theta_{\text{new}}\mid\mu)\,
 d\theta_{\text{new}},
-\]
+$$
 
 where
 
-\[
+$$
 Y_{i,\text{new}}\mid\theta_{\text{new}}\sim N(\theta_{\text{new}},\sigma^2),
 \qquad
 \theta_{\text{new}}\mid\mu\sim N(\mu,\tau^2).
-\]
+$$
 
-We know that the distribution \(Y_{i,\text{new}}\mid\mu\) is normally distributed as it is the product of two normal distribution .Hence, the mean and variance of
-\(Y_{i,\text{new}}\mid\mu\) can be obtained using the tower property and
-the law of total variance, conditioning on \(\theta_{\text{new}}\).
+We know that the distribution $Y_{i,\text{new}}\mid\mu$ is normally
+distributed as it is the product of two normal distribution .Hence, the
+mean and variance of $Y_{i,\text{new}}\mid\mu$ can be obtained using the
+tower property and the law of total variance, conditioning on
+$\theta_{\text{new}}$.
 
 \textbf{Mean, by the tower property:}
 
-\[
+$$
 \begin{aligned}
 \operatorname{E}(Y_{i,\text{new}}\mid\mu)
 &=\operatorname{E}\Big[\operatorname{E}\big(Y_{i,\text{new}}\mid\theta_{\text{new}}\big)\,\Big|\,\mu\Big]\\
 &=\operatorname{E}\big[\theta_{\text{new}}\mid\mu\big]\\
 &=\mu.
 \end{aligned}
-\]
+$$
 
 \textbf{Variance, by the law of total variance:}
 
-\[
+$$
 \begin{aligned}
 \operatorname{Var}(Y_{i,\text{new}}\mid\mu)
 &=\operatorname{E}\Big[\operatorname{Var}\big(Y_{i,\text{new}}\mid\theta_{\text{new}}\big)\,\Big|\,\mu\Big]
@@ -1303,21 +1305,23 @@ the law of total variance, conditioning on \(\theta_{\text{new}}\).
   +\operatorname{Var}\big[\theta_{\text{new}}\mid\mu\big]\\
 &=\sigma^2+\tau^2.
 \end{aligned}
-\]
+$$
 
-Therefore the distribution of \(Y_{i,\text{new}}\mid\mu\) is:
+Therefore the distribution of $Y_{i,\text{new}}\mid\mu$ is:
 
-\[
+$$
 \boxed{
 Y_{i,\text{new}}\mid\mu
 \sim
 N\left(\mu,\ \sigma^2+\tau^2\right).
 }
-\]
+$$
 
 ### (b)
 
-We want to find \(\operatorname{E}[Y_{i,\text{new}}\mid\mathbf{y}]\) so by the tower property:
+We want to find \(\operatorname{E}[Y_{i,\text{new}}\mid\mathbf{y}]\) so by
+the tower property:
+
 \[
 \operatorname{E}[Y_{i,\text{new}}\mid\mathbf{y}]
 =
@@ -1326,7 +1330,17 @@ We want to find \(\operatorname{E}[Y_{i,\text{new}}\mid\mathbf{y}]\) so by the t
 \operatorname{E}[\mu\mid\mathbf{y}].
 \]
 
-From part (a) we know \(\operatorname{E}(Y_{i,\text{new}}\mid\mu)=\mu\), hence \(\operatorname{E}[Y_{i,\text{new}}\mid\mathbf{y}] = \operatorname{E}[\mu\mid\mathbf{y}]\) as having no data the mean relies entirely on the population mean which is the same as question 3(d)(i):
+From part (a) we know \(\operatorname{E}(Y_{i,\text{new}}\mid\mu)=\mu\),
+hence
+
+\[
+\operatorname{E}[Y_{i,\text{new}}\mid\mathbf{y}]
+=
+\operatorname{E}[\mu\mid\mathbf{y}]
+\]
+
+as having no data the mean relies entirely on the population mean, which
+is the same as Question 3(d)(i):
 
 \[
 \boxed{
@@ -1359,8 +1373,34 @@ plot(
 abline(v = 0, lty = 2, lwd = 1.2)
 
 ```
+
 ### (c)
- 
+
+```{r, echo=FALSE}
+mu_hat <- sum(ybar_j / V_j) / sum(1 / V_j)
+
+mu_hat_table <- data.frame(
+  `Quantity` = "Empirical Bayes estimate of mu",
+  `Estimate` = round(mu_hat, 3),
+  check.names = FALSE
+)
+
+mu_hat_table |>
+  kable(
+    format = "latex",
+    booktabs = TRUE,
+    align = c("l", "c"),
+    caption = "Empirical Bayes point estimate of the population mean."
+  ) |>
+  kable_styling(
+    latex_options = c("striped", "hold_position"),
+    full_width = FALSE,
+    position = "center"
+  ) |>
+  row_spec(0, bold = TRUE)
+
+```
+
 ```{r, echo= FALSE}
 set.seed(69)
 y_new_eb_draws <- rnorm(length(mu_draws),mean = mu_hat,sd = sqrt(sigma2 + tau2))
@@ -1372,4 +1412,10 @@ lines(density(y_new_eb_draws),lwd = 2,col = "red",lty = 2)
 legend("topright", legend = c( expression(p(y[i*","*new] ~ "|" ~ y)), expression(p(y[i*","*new] ~ "|" ~ y*","*hat(u)))),col = c("blue", "red"),lwd = 2,lty = c(1, 2))
 
 ```
-As seen in the plots both densities have roughly the same mean (0.373) due to the Laplace prior not being considered for \(\hat{\mu}\). The densities themselves are very similar but with the full posterior predictive density where u is unknown marginally wider. This is due to the extra uncertainty in the full posterior due to considering u and unknown parameter that must be accounted for. 
+
+As seen in the plots both densities have roughly the same mean (0.373)
+due to the Laplace prior not being considered for $\hat{\mu}$. The
+densities themselves are very similar but with the full posterior
+predictive density where u is unknown marginally wider. This is due to
+the extra uncertainty in the full posterior due to considering u and
+unknown parameter that must be accounted for. .
