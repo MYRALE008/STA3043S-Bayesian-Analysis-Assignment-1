@@ -1,7 +1,7 @@
 ---
 title: "STA3043S Bayesian Analysis"
 subtitle: "Assignment One Memorandum: Hierarchical Bayesian Modelling"
-author: "Ryan Daye (DYXRYA001), Alex Meyer(MYRALE008)"
+author: "Ryan Daye (DYXRYA001), Alex Meyer(MYRALE008), Jonathan Stocken (STCJON004)"
 date: "6 September 2026"
 output:
   pdf_document:
@@ -10,12 +10,20 @@ output:
     keep_tex: true
     toc: false
     toc_depth: 1
-geometry: margin=23mm
+geometry: a4paper, margin=23mm
 fontsize: 11pt
 header-includes:
   - \usepackage{float}
   - \usepackage{caption}
+  - \usepackage{microtype}
+  - \captionsetup{font=small,labelfont=bf}
   - \captionsetup[figure]{justification=centering,singlelinecheck=false}
+  - \captionsetup[table]{justification=centering,singlelinecheck=false}
+  - \setlength{\emergencystretch}{3em}
+  - \widowpenalty=10000
+  - \clubpenalty=10000
+  - \displaywidowpenalty=10000
+  - \raggedbottom
 ---
 
 ```{r setup, include=FALSE}
@@ -26,6 +34,9 @@ knitr::opts_chunk$set(echo = TRUE)
 load("Data/STA3043S_Assignment1_Data.RData")
 mydata <- machineData[["DYXRYA001"]]
 ```
+
+\noindent\textbf{Dataset:} This analysis uses the data assigned to student number
+\texttt{DYXRYA001}.
 
 ```{r, echo=FALSE}
 # Split observations by machine and calculate the summaries used below.
@@ -553,7 +564,10 @@ $$
 \exp\{-c|\mu^\ast|\},
 $$
 
-```{r accept reject, echo=FALSE}
+The following function implements the sampler and returns the accepted draws
+together with the empirical acceptance rate.
+
+```{r accept reject, echo=TRUE}
 ar <- function(n = 10000, m, v, c = 0.25) {
   samples <- numeric(n)
   accepted <- 0
@@ -828,7 +842,7 @@ $$
 (-0.762,\;1.500)\text{ ml},
 $$
 
-which contains zero. This indicates that there is still substantial uncertainty about whether the population of machines systematically overfills or under fills the containers.
+which contains zero. This indicates that there is still substantial uncertainty about whether the population of machines systematically overfills or underfills the containers.
 
 Furthermore,
 
@@ -836,17 +850,22 @@ $$
 P(|\mu| < 0.5 \mid y) = 0.5354,
 $$
 
-meaning that more than half of the posterior probability is assigned to population mean deviations within 0.5 ml of the target.
-This suggests that, even if there is some overall calibration bias, its magnitude is likely to be relatively small.
+Thus, there is only a slight posterior preference for population mean deviations
+within 0.5 ml of the target. Conversely, approximately 46.5\% of the posterior
+probability lies outside this range, so a practically relevant calibration bias
+remains plausible.
 
 The posterior density is unimodal and concentrated slightly to the right of zero, which is consistent with the posterior mean and
 the probability \(P(\mu > 0 \mid y)\). At the same time, the density still assigns appreciable probability to values near and
 below zero.
 
-Overall, the results provide mild evidence of factory-wide overfilling, but there is not strong evidence of a practically
-important systematic calibration error. These results are relevant because \(\mu\) represents the average deviation across the
-population of filling machines, so inference about \(\mu\) indicates whether the manufacturing process is systematically
-miscalibrated at the factory level rather than only for individual machines.
+Overall, the results provide mild evidence of factory-wide overfilling, but the
+evidence is not decisive and substantial uncertainty remains about both the sign
+and practical size of the population mean deviation. These results are relevant
+because \(\mu\) represents the average deviation across the population of filling
+machines, so inference about \(\mu\) indicates whether the manufacturing process
+is systematically miscalibrated at the factory level rather than only for
+individual machines.
 
 # Question 4
 
@@ -1419,3 +1438,4 @@ densities themselves are very similar but with the full posterior
 predictive density where u is unknown marginally wider. This is due to
 the extra uncertainty in the full posterior due to considering u and
 unknown parameter that must be accounted for. .
+
