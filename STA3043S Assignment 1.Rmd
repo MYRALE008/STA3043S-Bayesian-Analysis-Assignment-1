@@ -1359,3 +1359,17 @@ plot(
 abline(v = 0, lty = 2, lwd = 1.2)
 
 ```
+### (c)
+ 
+```{r, echo= FALSE}
+set.seed(69)
+y_new_eb_draws <- rnorm(length(mu_draws),mean = mu_hat,sd = sqrt(sigma2 + tau2))
+
+plot(density(y_new_draws),lwd = 2,col = "blue",xlab = "Simulated deviation of a new machine's bottle from 500ml (ml)",ylab = "Density",main = "Posterior predictive density: full posterior vs. empirical Bayes",ylim = range(0, density(y_new_draws)$y, density(y_new_eb_draws)$y))
+
+lines(density(y_new_eb_draws),lwd = 2,col = "red",lty = 2)
+
+legend("topright", legend = c( expression(p(y[i*","*new] ~ "|" ~ y)), expression(p(y[i*","*new] ~ "|" ~ y*","*hat(u)))),col = c("blue", "red"),lwd = 2,lty = c(1, 2))
+
+```
+As seen in the plots both densities have roughly the same mean (0.373) due to the Laplace prior not being considered for \(\hat{\mu}\). The densities themselves are very similar but with the full posterior predictive density where u is unknown marginally wider. This is due to the extra uncertainty in the full posterior due to considering u and unknown parameter that must be accounted for. 
