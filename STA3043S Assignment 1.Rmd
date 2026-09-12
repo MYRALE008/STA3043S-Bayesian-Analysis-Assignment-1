@@ -1296,8 +1296,7 @@ Y_{i,\text{new}}\mid\theta_{\text{new}}\sim N(\theta_{\text{new}},\sigma^2),
 \theta_{\text{new}}\mid\mu\sim N(\mu,\tau^2).
 $$
 
-We know that the distribution $Y_{i,\text{new}}\mid\mu$ is normally
-distributed as it is the product of two normal distribution .Hence, the
+Since \(Y_{i,\mathrm{new}}=\mu+u_{\mathrm{new}}+\varepsilon_{i,\mathrm{new}}\), where \(u_{\mathrm{new}}\sim N(0,\tau^2)\) and \(\varepsilon_{i,\mathrm{new}}\sim N(0,\sigma^2)\) independently, it is a sum/convolution of independent Normal variables.Hence, the
 mean and variance of $Y_{i,\text{new}}\mid\mu$ can be obtained using the
 tower property and the law of total variance, conditioning on
 $\theta_{\text{new}}$.
@@ -1339,7 +1338,20 @@ $$
 ### (b)
 
 We want to find \(\operatorname{E}[Y_{i,\text{new}}\mid\mathbf{y}]\) so by
-the tower property:
+the tower property. The full posterior predictive distribution is given by
+
+\[
+p(y_{i,\text{new}}\mid\mathbf{y})
+=
+\int
+\phi(y_{i,\text{new}};\mu,\sigma^2+\tau^2)\,
+\pi(\mu\mid\mathbf{y})\,d\mu,
+\]
+
+where \(\phi(\cdot\,;\mu,\sigma^2+\tau^2)\) denotes the Normal density with
+mean \(\mu\) and variance \(\sigma^2+\tau^2\), from part (a). Rather than
+evaluating this integral directly, the mean is found using the tower
+property:
 
 \[
 \operatorname{E}[Y_{i,\text{new}}\mid\mathbf{y}]
@@ -1371,7 +1383,7 @@ is the same as Question 3(d)(i):
 }
 \]
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, fig.cap="Posterior predictive density of the deviation of a single bottle from a brand-new, as-yet-unobserved machine, obtained by simulating over the posterior draws of $\\mu$.", fig.pos="H", fig.align="center", fig.width=7, fig.height=4.2}
 set.seed(69)  
 
 y_new_draws <- rnorm(
@@ -1380,7 +1392,7 @@ y_new_draws <- rnorm(
   sd = sqrt(sigma2 + tau2)
 )
 
-posterior_predictive_mean <- mean(y_new_draws)
+posterior_predictive_mean <- mean(mu_draws)
 
 plot(
   density(y_new_draws),
@@ -1418,9 +1430,42 @@ mu_hat_table |>
   ) |>
   row_spec(0, bold = TRUE)
 
-```
+full_predictive_mean <- mean(mu_draws)
+full_predictive_variance <- sigma2 + tau2 + var(mu_draws)
 
-```{r, echo= FALSE}
+eb_predictive_mean <- mu_hat
+eb_predictive_variance <- sigma2 + tau2
+
+comparison_table <- data.frame(
+  `Quantity` = c(
+    "Mean",
+    "Variance"
+  ),
+  `Full posterior predictive` = c(
+    round(full_predictive_mean, 3),
+    round(full_predictive_variance, 3)
+  ),
+  `Empirical Bayes predictive` = c(
+    round(eb_predictive_mean, 3),
+    round(eb_predictive_variance, 3)
+  ),
+  check.names = FALSE
+)
+
+comparison_table |>
+  kable(
+    format = "latex",
+    booktabs = TRUE,
+    align = c("l", "c", "c"),
+    caption = "Comparison of the full posterior predictive and empirical Bayes predictive means and variances."
+  ) |>
+  kable_styling(
+    latex_options = c("striped", "hold_position"),
+    full_width = FALSE,
+    position = "center"
+  ) |>
+  row_spec(0, bold = TRUE)
+
 set.seed(69)
 y_new_eb_draws <- rnorm(length(mu_draws),mean = mu_hat,sd = sqrt(sigma2 + tau2))
 
@@ -1432,10 +1477,18 @@ legend("topright", legend = c( expression(p(y[i*","*new] ~ "|" ~ y)), expression
 
 ```
 
-As seen in the plots both densities have roughly the same mean (0.373)
-due to the Laplace prior not being considered for $\hat{\mu}$. The
-densities themselves are very similar but with the full posterior
-predictive density where u is unknown marginally wider. This is due to
-the extra uncertainty in the full posterior due to considering u and
-unknown parameter that must be accounted for. .
 
+The full posterior predictive distribution has mean
+\(\operatorname{E}(Y_{i,\text{new}}\mid\mathbf{y})\approx0.373\) ml and
+variance \(\operatorname{Var}(Y_{i,\text{new}}\mid\mathbf{y})\approx6.580\),
+whereas the empirical Bayes  distribution has mean
+\(\hat\mu\approx0.420\) ml and variance \(6.25\). The full Bayesian
+distribution is centered slightly closer to zero because it retains the
+influence of the zero-centered Laplace prior. It is also slightly wider
+because it additionally accounts for posterior uncertainty in \(\mu\),
+whereas the empirical Bayes approach treats \(\hat\mu\) as known exactly.
+Both methods already incorporate the machine-to-machine variance
+\(\tau^2\) and bottle-to-bottle variance \(\sigma^2\); the only difference
+between them is whether \(\operatorname{Var}(\mu\mid\mathbf{y})\) is
+additionally included. The curves remain visually similar because this
+extra term is small relative to \(\sigma^2+\tau^2\).
